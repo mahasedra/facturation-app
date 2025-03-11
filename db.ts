@@ -33,7 +33,6 @@ export const initDB = async (): Promise<void> => {
                 status TEXT NOT NULL DEFAULT 'unpaid'
             );
         `);
-        console.log('Database initialized successfully');
     } catch (error) {
         console.error('Database initialization failed:', error);
     }
@@ -66,7 +65,6 @@ export const addInvoice = async (invoice: Invoice): Promise<void> => {
                 invoiceStatus,
             ]
         );
-        console.log('Invoice added successfully');
     } catch (error) {
         console.error('Add Invoice Error:', error);
     }
@@ -89,7 +87,6 @@ export const updateInvoiceStatus = async (id: number): Promise<void> => {
     await ensureDBInitialized();
     try {
         await db!.runAsync(`UPDATE invoices SET status = 'paid' WHERE id = ?;`, [id]);
-        console.log(`Invoice ${id} marked as paid`);
     } catch (error) {
         console.error('Update Invoice Error:', error);
     }

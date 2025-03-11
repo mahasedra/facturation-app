@@ -9,14 +9,12 @@ export default function HomeScreen() {
 
     useEffect(() => {
         initDB().then(() => {
-            console.log('Database initialized in HomeScreen');
             fetchInvoices();
         });
     }, []);
 
     const fetchInvoices = async () => {
         const data = await getInvoices();
-        console.log("Fetched invoices:", data);
         setInvoices(data);
     };
 
