@@ -1,7 +1,7 @@
-// app/_layout.tsx
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { View, Text } from 'react-native';
 import { useFonts } from 'expo-font';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -10,9 +10,10 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '../hooks/useColorScheme';
 
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// Empêcher le splash screen de disparaître avant le chargement
 SplashScreen.preventAutoHideAsync();
+
+const Tab = createBottomTabNavigator();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -27,19 +28,21 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text>Loading Fonts...</Text>
-      </View>;
+      </View>
+    );
   }
-
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="index" options={{ title: 'Home', headerShown: false }} />
-        <Stack.Screen name="add" options={{ title: 'Add Invoice' }} />
+        {/* Tab Navigator contenant Home, Add et Scan */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
+        {/* Stack screen pour les détails de la facture */}
         <Stack.Screen name="[id]" options={{ title: 'Invoice Details' }} />
-        <Stack.Screen name="scan" options={{ title: 'Scan Invoice' }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

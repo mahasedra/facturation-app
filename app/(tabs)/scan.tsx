@@ -18,7 +18,7 @@ export default function ScanScreen() {
         if (!scanned) {
             setScanned(true);
             Alert.alert("QR Code Scanned", `Invoice ID: ${data}`, [
-                { text: "OK", onPress: () => router.push(`/invoice/${data}`) }
+                { text: "OK", onPress: () => router.push(`/${data}`) }
             ]);
         }
     };

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
-import { addInvoice, Invoice } from '../db';
+import { addInvoice, getInvoices, Invoice } from '../../db';
 
 export default function AddInvoiceScreen() {
     const router = useRouter();
@@ -20,12 +20,14 @@ export default function AddInvoiceScreen() {
 
     const handleAddInvoice = async () => {
         await addInvoice(invoice);
-        alert('Invoice added!');
-        router.push('/');
+        Alert.alert('Success', 'Invoice added successfully!');
+        router.push('/'); // Retourne à la liste après ajout
     };
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
+            <Text style={styles.title}>Add New Invoice</Text>
+
             <Text style={styles.label}>Date:</Text>
             <Button title={invoice.date} onPress={() => setShowDatePicker(true)} />
             {showDatePicker && (
@@ -84,6 +86,12 @@ const styles = StyleSheet.create({
     container: {
         padding: 20,
         backgroundColor: '#f5f5f5',
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 20,
     },
     label: {
         fontSize: 16,
