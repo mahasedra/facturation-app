@@ -2,7 +2,6 @@ import * as SQLite from 'expo-sqlite';
 
 export type Invoice = {
     id?: number;
-    number: string;
     date: string;
     client: string;
     company: string;
@@ -15,42 +14,48 @@ export type Invoice = {
 
 let db: SQLite.SQLiteDatabase | null = null;
 
-// Ouvre la base de données de manière asynchrone
+// Fonction pour initialiser la base de données
 export const initDB = async (): Promise<void> => {
     try {
-        db = await SQLite.openDatabaseAsync('invoices.db');
+        if (!db) {
+            db = await SQLite.openDatabaseAsync('invoices.db');
+        }
         await db.execAsync(`
-      CREATE TABLE IF NOT EXISTS invoices (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        number TEXT NOT NULL,
-        date TEXT NOT NULL,
-        client TEXT NOT NULL,
-        company TEXT NOT NULL,
-        description TEXT NOT NULL,
-        unit_price REAL NOT NULL,
-        quantity INTEGER NOT NULL,
-        total REAL NOT NULL,
-        status TEXT NOT NULL DEFAULT 'unpaid'
-      );
-    `);
+            CREATE TABLE IF NOT EXISTS invoices (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date TEXT NOT NULL,
+                client TEXT NOT NULL,
+                company TEXT NOT NULL,
+                description TEXT NOT NULL,
+                unit_price REAL NOT NULL,
+                quantity INTEGER NOT NULL,
+                total REAL NOT NULL,
+                status TEXT NOT NULL DEFAULT 'unpaid'
+            );
+        `);
         console.log('Database initialized successfully');
     } catch (error) {
         console.error('Database initialization failed:', error);
     }
 };
 
+// Vérifie si la base de données est prête
+const ensureDBInitialized = async (): Promise<void> => {
+    if (!db) {
+        console.warn("Database is not initialized, initializing now...");
+        await initDB();
+    }
+};
+
 // Ajoute une nouvelle facture
 export const addInvoice = async (invoice: Invoice): Promise<void> => {
-    if (!db) {
-        console.error('Database is not initialized');
-        return;
-    }
+    const invoiceStatus = "unpaid"
+    await ensureDBInitialized();
     try {
-        await db.runAsync(
-            `INSERT INTO invoices (number, date, client, company, description, unit_price, quantity, total, status) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+        await db!.runAsync(
+            `INSERT INTO invoices (date, client, company, description, unit_price, quantity, total, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
             [
-                invoice.number,
                 invoice.date,
                 invoice.client,
                 invoice.company,
@@ -58,7 +63,7 @@ export const addInvoice = async (invoice: Invoice): Promise<void> => {
                 invoice.unit_price,
                 invoice.quantity,
                 invoice.total,
-                invoice.status,
+                invoiceStatus,
             ]
         );
         console.log('Invoice added successfully');
@@ -69,12 +74,9 @@ export const addInvoice = async (invoice: Invoice): Promise<void> => {
 
 // Récupère toutes les factures
 export const getInvoices = async (): Promise<Invoice[]> => {
-    if (!db) {
-        console.error('Database is not initialized');
-        return [];
-    }
+    await ensureDBInitialized();
     try {
-        const result = await db.getAllAsync<Invoice>('SELECT * FROM invoices;');
+        const result = await db!.getAllAsync<Invoice>('SELECT * FROM invoices;');
         return result;
     } catch (error) {
         console.error('Get Invoices Error:', error);
@@ -84,16 +86,16 @@ export const getInvoices = async (): Promise<Invoice[]> => {
 
 // Met à jour le statut d'une facture
 export const updateInvoiceStatus = async (id: number): Promise<void> => {
-    if (!db) {
-        console.error('Database is not initialized');
-        return;
-    }
+    await ensureDBInitialized();
     try {
-        await db.runAsync(`UPDATE invoices SET status = 'paid' WHERE id = ?;`, [id]);
+        await db!.runAsync(`UPDATE invoices SET status = 'paid' WHERE id = ?;`, [id]);
         console.log(`Invoice ${id} marked as paid`);
     } catch (error) {
         console.error('Update Invoice Error:', error);
     }
 };
+
+// Exporte la fonction d'initialisation
+export { ensureDBInitialized };
 
 export default db;

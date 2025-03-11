@@ -1,5 +1,6 @@
 // app/_layout.tsx
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { View, Text } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -8,6 +9,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '../hooks/useColorScheme';
+
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -25,15 +27,18 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return null;
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading Fonts...</Text>
+      </View>;
   }
+
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="index" options={{ title: 'Home', headerShown: false }} />
         <Stack.Screen name="add" options={{ title: 'Add Invoice' }} />
-        <Stack.Screen name="invoice/[id]" options={{ title: 'Invoice Details' }} />
+        <Stack.Screen name="[id]" options={{ title: 'Invoice Details' }} />
         <Stack.Screen name="scan" options={{ title: 'Scan Invoice' }} />
       </Stack>
       <StatusBar style="auto" />
